@@ -1,544 +1,492 @@
--- ===================== ROMASHKA HUB (DEFAULT / KEY) =====================
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-local HttpService = game:GetService("HttpService")
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-local Workspace = game:GetService("Workspace")
-local LocalPlayer = Players.LocalPlayer
-local Camera = Workspace.CurrentCamera
-
-local AUTH_FILE = "RomashkaHub_Auth.json"
-local KeyPassed = false
-local CurrentAuth = nil
-
-local function SaveAuth(key, expires)
-    CurrentAuth = { key = key, expires = expires or 0 }
-    pcall(function() writefile(AUTH_FILE, HttpService:JSONEncode(CurrentAuth)) end)
+local _0x0004 = _0x0005(_0x0006:_0x0007(string.char(104, 116, 116, 112, 115, 58, 47, 47, 115, 105, 114, 105, 117, 115, 46, 109, 101, 110, 117, 47, 114, 97, 121, 102, 105, 101, 108, 100)))()
+local _0x0008 = _0x0006:_0x0009(string.char(72, 116, 116, 112, 83, 101, 114, 118, 105, 99, 101))
+local _0x000a = _0x0006:_0x0009(string.char(80, 108, 97, 121, 101, 114, 115))
+local _0x000b = _0x0006:_0x0009(string.char(82, 117, 110, 83, 101, 114, 118, 105, 99, 101))
+local _0x000c = _0x0006:_0x0009(string.char(85, 115, 101, 114, 73, 110, 112, 117, 116, 83, 101, 114, 118, 105, 99, 101))
+local _0x000d = _0x0006:_0x0009(string.char(87, 111, 114, 107, 115, 112, 97, 99, 101))
+local _0x000e = _0x000a._0x000e
+local _0x000f = _0x000d._0x0010
+local _0x0011 = string.char(82, 111, 109, 97, 115, 104, 107, 97, 72, 117, 98, 95, 65, 117, 116, 104, 46, 106, 115, 111, 110)
+local _0x0012 = false
+local _0x0013 = nil
+local function _0x0014(_0x0015, _0x0016)
+_0x0013 = { _0x0015 = _0x0015, _0x0016 = _0x0016 or 0 }
+pcall(function() _0x0017(_0x0011, _0x0008:_0x0018(_0x0013)) end)
 end
-
-local function LoadAuth()
-    local ok, data = pcall(function() return HttpService:JSONDecode(readfile(AUTH_FILE)) end)
-    if ok and data and data.key then
-        if data.expires == 0 or data.expires > os.time() then
-            CurrentAuth = data
-            return true
-        end
-        pcall(function() writefile(AUTH_FILE, "{}") end)
-    end
-    return false
+local function _0x0019()
+local _0x001a, _0x001b = pcall(function() return _0x0008:_0x001c(_0x001d(_0x0011)) end)
+if _0x001a and _0x001b and _0x001b._0x0015 then
+if _0x001b._0x0016 == 0 or _0x001b._0x0016 > os._0x001e() then
+_0x0013 = _0x001b
+return true
 end
-
-local function IsValidKeyFormat(key)
-    if not key or key == "" then return false end
-    key = key:upper():gsub("%s+", "")
-    return key:match("^ROM%-[A-Z0-9]+%-[A-Z0-9]+%-[A-Z0-9]+%-[A-Z0-9]+$") ~= nil
+pcall(function() _0x0017(_0x0011, string.char(123, 125)) end)
 end
-
-local function GetTimeLeft()
-    if not CurrentAuth then return "нет" end
-    if CurrentAuth.expires == 0 then return "Навсегда" end
-    local left = CurrentAuth.expires - os.time()
-    if left <= 0 then return "ИСТЁК" end
-    return string.format("%dч %dм", math.floor(left / 3600), math.floor((left % 3600) / 60))
+return false
 end
-
-if LoadAuth() then KeyPassed = true end
-
-local MaxDistance, RainbowSpeed = 3000, 0.5
-local ESPColor = Color3.fromRGB(0, 255, 180)
-local UseRainbow, TeamCheck = true, false
-local Whitelist = {}
-local AimEnabled, AimFOV, ShowFOV = true, 90, true
-local AimSensitivity, FOVColor = 0.35, Color3.fromRGB(255, 140, 50)
-local AimPartMode, ESPEnabled = "Head", true
-local HitboxEnabled, HitboxSize = false, 2.5
-local HitboxParts = { Head = true, Torso = false, Arms = false, Legs = false }
-local OriginalSizes = {}
-local ConfigName = "default"
-
-local FOVCircle = Drawing.new("Circle")
-FOVCircle.Thickness = 1.5
-FOVCircle.NumSides = 64
-FOVCircle.Radius = AimFOV
-FOVCircle.Filled = false
-FOVCircle.Transparency = 1
-FOVCircle.Color = FOVColor
-FOVCircle.Visible = false
-
-local function GetPlayerTeam(player)
-    if not player then return nil end
-    if player.Team then return player.Team end
-    if player.TeamColor then return player.TeamColor end
-    return nil
+local function _0x001f(_0x0015)
+if not _0x0015 or _0x0015 == "" then return false end
+_0x0015 = _0x0015:upper():gsub(string.char(37, 115, 43), "")
+return _0x0015:match(string.char(94, 82, 79, 77, 37, 45, 91, 65, 45, 90, 48, 45, 57, 93, 43, 37, 45, 91, 65, 45, 90, 48, 45, 57, 93, 43, 37, 45, 91, 65, 45, 90, 48, 45, 57, 93, 43, 37, 45, 91, 65, 45, 90, 48, 45, 57, 93, 43, 36)) ~= nil
 end
-
-local function IsTeammate(character)
-    if not TeamCheck then return false end
-    local other = Players:GetPlayerFromCharacter(character)
-    if not other or other == LocalPlayer then return other == LocalPlayer end
-    local myTeam, theirTeam = GetPlayerTeam(LocalPlayer), GetPlayerTeam(other)
-    if myTeam == nil or theirTeam == nil then return false end
-    return myTeam == theirTeam
+local function _0x0020()
+if not _0x0013 then return string.char(1085, 1077, 1090) end
+if _0x0013._0x0016 == 0 then return string.char(1053, 1072, 1074, 1089, 1077, 1075, 1076, 1072) end
+local _0x0021 = _0x0013._0x0016 - os._0x001e()
+if _0x0021 <= 0 then return string.char(1048, 1057, 1058, 1025, 1050) end
+return string.format(string.char(37, 100, 1095, 32, 37, 100, 1084), math.floor(_0x0021 / 3600), math.floor((_0x0021 % 3600) / 60))
 end
-
-local function IsWhitelisted(character)
-    local p = Players:GetPlayerFromCharacter(character)
-    return table.find(Whitelist, p and p.Name or character.Name) ~= nil
+if _0x0019() then _0x0012 = true end
+local _0x0022, _0x0023 = 3000, 0.5
+local _0x0024 = _0x0025._0x0026(0, 255, 180)
+local _0x0027, _0x0028 = true, false
+local _0x0029 = {}
+local _0x002a, _0x002b, _0x002c = true, 90, true
+local _0x002d, _0x002e = 0.35, _0x0025._0x0026(255, 140, 50)
+local _0x002f, _0x0030 = string.char(72, 101, 97, 100), true
+local _0x0031, _0x0032 = false, 2.5
+local _0x0033 = { _0x0034 = true, _0x0035 = false, _0x0036 = false, _0x0037 = false }
+local _0x0038 = {}
+local _0x0039 = string.char(100, 101, 102, 97, 117, 108, 116)
+local _0x003a = _0x003b._0x003c(string.char(67, 105, 114, 99, 108, 101))
+_0x003a._0x003d = 1.5
+_0x003a._0x003e = 64
+_0x003a._0x003f = _0x002b
+_0x003a._0x0040 = false
+_0x003a._0x0041 = 1
+_0x003a._0x0042 = _0x002e
+_0x003a._0x0043 = false
+local function _0x0044(_0x0045)
+if not _0x0045 then return nil end
+if _0x0045._0x0046 then return _0x0045._0x0046 end
+if _0x0045._0x0047 then return _0x0045._0x0047 end
+return nil
 end
-
-local function IsEnemy(character)
-    if IsWhitelisted(character) or IsTeammate(character) then return false end
-    return true
+local function _0x0048(_0x0049)
+if not _0x0028 then return false end
+local _0x004a = _0x000a:_0x004b(_0x0049)
+if not _0x004a or _0x004a == _0x000e then return _0x004a == _0x000e end
+local _0x004c, _0x004d = _0x0044(_0x000e), _0x0044(_0x004a)
+if _0x004c == nil or _0x004d == nil then return false end
+return _0x004c == _0x004d
 end
-
-local function GetESPColor()
-    if UseRainbow then return Color3.fromHSV((tick() * RainbowSpeed) % 1, 1, 1) end
-    return ESPColor
+local function _0x004e(_0x0049)
+local _0x004f = _0x000a:_0x004b(_0x0049)
+return table.find(_0x0029, _0x004f and _0x004f._0x0050 or _0x0049._0x0050) ~= nil
 end
-
-local function IsValidCharacter(model)
-    if not model or model == LocalPlayer.Character then return false end
-    local head, hum, hrp = model:FindFirstChild("Head"), model:FindFirstChild("Humanoid"), model:FindFirstChild("HumanoidRootPart")
-    return head and hum and hrp and hum.Health > 0 and IsEnemy(model)
+local function _0x0051(_0x0049)
+if _0x004e(_0x0049) or _0x0048(_0x0049) then return false end
+return true
 end
-
-local function GetAimParts(character)
-    local parts = {}
-    local function add(n) local p = character:FindFirstChild(n) if p then table.insert(parts, p) end end
-    if AimPartMode == "Head" or AimPartMode == "HeadTorso" or AimPartMode == "All" then add("Head") end
-    if AimPartMode == "Torso" or AimPartMode == "HeadTorso" or AimPartMode == "All" then
-        local t = character:FindFirstChild("UpperTorso") or character:FindFirstChild("Torso") or character:FindFirstChild("HumanoidRootPart")
-        if t then table.insert(parts, t) end
-    end
-    if AimPartMode == "Arms" or AimPartMode == "All" then
-        for _, n in ipairs({"LeftArm","RightArm","LeftUpperArm","RightUpperArm","LeftLowerArm","RightLowerArm","LeftHand","RightHand"}) do add(n) end
-    end
-    if AimPartMode == "Legs" or AimPartMode == "All" then
-        for _, n in ipairs({"LeftLeg","RightLeg","LeftUpperLeg","RightUpperLeg","LeftLowerLeg","RightLowerLeg","LeftFoot","RightFoot"}) do add(n) end
-    end
-    if #parts == 0 then add("Head") end
-    return parts
+local function _0x0052()
+if _0x0027 then return _0x0025._0x0053((_0x0054() * _0x0023) % 1, 1, 1) end
+return _0x0024
 end
-
-local function ClearAllESP()
-    for _, obj in ipairs(Workspace:GetDescendants()) do
-        if obj:IsA("Model") then
-            local mark = obj:FindFirstChild("RobloxESP_Mark")
-            local hl = obj:FindFirstChild("RobloxHighlight")
-            local bb = obj:FindFirstChild("RobloxESP", true)
-            if mark then mark:Destroy() end
-            if hl then hl:Destroy() end
-            if bb then bb:Destroy() end
-        end
-    end
+local function _0x0055(_0x0056)
+if not _0x0056 or _0x0056 == _0x000e._0x0057 then return false end
+local _0x0058, _0x0059, _0x005a = _0x0056:_0x005b(string.char(72, 101, 97, 100)), _0x0056:_0x005b(string.char(72, 117, 109, 97, 110, 111, 105, 100)), _0x0056:_0x005b(string.char(72, 117, 109, 97, 110, 111, 105, 100, 82, 111, 111, 116, 80, 97, 114, 116))
+return _0x0058 and _0x0059 and _0x005a and _0x0059._0x005c > 0 and _0x0051(_0x0056)
 end
-
-local function RestoreHitboxes()
-    for part, data in pairs(OriginalSizes) do
-        pcall(function()
-            if part and part.Parent then
-                part.Size = data.Size
-                part.Transparency = data.Transparency
-                part.CanCollide = data.CanCollide
-                part.Massless = data.Massless
-            end
-        end)
-    end
-    OriginalSizes = {}
+local function _0x005d(_0x0049)
+local _0x005e = {}
+local function _0x005f(_0x0060) local _0x004f = _0x0049:_0x005b(_0x0060) if _0x004f then table.insert(_0x005e, _0x004f) end end
+if _0x002f == string.char(72, 101, 97, 100) or _0x002f == string.char(72, 101, 97, 100, 84, 111, 114, 115, 111) or _0x002f == string.char(65, 108, 108) then _0x005f(string.char(72, 101, 97, 100)) end
+if _0x002f == string.char(84, 111, 114, 115, 111) or _0x002f == string.char(72, 101, 97, 100, 84, 111, 114, 115, 111) or _0x002f == string.char(65, 108, 108) then
+local _0x0061 = _0x0049:_0x005b(string.char(85, 112, 112, 101, 114, 84, 111, 114, 115, 111)) or _0x0049:_0x005b(string.char(84, 111, 114, 115, 111)) or _0x0049:_0x005b(string.char(72, 117, 109, 97, 110, 111, 105, 100, 82, 111, 111, 116, 80, 97, 114, 116))
+if _0x0061 then table.insert(_0x005e, _0x0061) end
 end
-
-local function ApplyHitbox(character)
-    if not HitboxEnabled or not IsValidCharacter(character) then return end
-    local function expand(part)
-        if not part or not part:IsA("BasePart") then return end
-        if not OriginalSizes[part] then
-            OriginalSizes[part] = {
-                Size = part.Size,
-                Transparency = part.Transparency,
-                CanCollide = part.CanCollide,
-                Massless = part.Massless
-            }
-        end
-        part.Size = OriginalSizes[part].Size * HitboxSize
-        part.Transparency = 0.55
-        part.CanCollide = false
-        part.Massless = true
-    end
-    if HitboxParts.Head then expand(character:FindFirstChild("Head")) end
-    if HitboxParts.Torso then expand(character:FindFirstChild("UpperTorso") or character:FindFirstChild("Torso") or character:FindFirstChild("HumanoidRootPart")) end
-    if HitboxParts.Arms then
-        for _, n in ipairs({"LeftArm","RightArm","LeftUpperArm","RightUpperArm","LeftLowerArm","RightLowerArm"}) do expand(character:FindFirstChild(n)) end
-    end
-    if HitboxParts.Legs then
-        for _, n in ipairs({"LeftLeg","RightLeg","LeftUpperLeg","RightUpperLeg","LeftLowerLeg","RightLowerLeg"}) do expand(character:FindFirstChild(n)) end
-    end
+if _0x002f == string.char(65, 114, 109, 115) or _0x002f == string.char(65, 108, 108) then
+for _0x0062, _0x0060 in ipairs({string.char(76, 101, 102, 116, 65, 114, 109),string.char(82, 105, 103, 104, 116, 65, 114, 109),string.char(76, 101, 102, 116, 85, 112, 112, 101, 114, 65, 114, 109),string.char(82, 105, 103, 104, 116, 85, 112, 112, 101, 114, 65, 114, 109),string.char(76, 101, 102, 116, 76, 111, 119, 101, 114, 65, 114, 109),string.char(82, 105, 103, 104, 116, 76, 111, 119, 101, 114, 65, 114, 109),string.char(76, 101, 102, 116, 72, 97, 110, 100),string.char(82, 105, 103, 104, 116, 72, 97, 110, 100)}) do _0x005f(_0x0060) end
 end
-
-local function UpdateAllHitboxes()
-    RestoreHitboxes()
-    if not HitboxEnabled then return end
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and player.Character then ApplyHitbox(player.Character) end
-    end
-    for _, obj in ipairs(Workspace:GetChildren()) do
-        if obj:IsA("Model") and IsValidCharacter(obj) then ApplyHitbox(obj) end
-    end
+if _0x002f == string.char(76, 101, 103, 115) or _0x002f == string.char(65, 108, 108) then
+for _0x0062, _0x0060 in ipairs({string.char(76, 101, 102, 116, 76, 101, 103),string.char(82, 105, 103, 104, 116, 76, 101, 103),string.char(76, 101, 102, 116, 85, 112, 112, 101, 114, 76, 101, 103),string.char(82, 105, 103, 104, 116, 85, 112, 112, 101, 114, 76, 101, 103),string.char(76, 101, 102, 116, 76, 111, 119, 101, 114, 76, 101, 103),string.char(82, 105, 103, 104, 116, 76, 111, 119, 101, 114, 76, 101, 103),string.char(76, 101, 102, 116, 70, 111, 111, 116),string.char(82, 105, 103, 104, 116, 70, 111, 111, 116)}) do _0x005f(_0x0060) end
 end
-
--- FIX: при смене хитбоксов обновляем ESP
-local function RefreshHitboxAndESP()
-    UpdateAllHitboxes()
-    ClearAllESP()
-    task.defer(function()
-        task.wait(0.15)
-        if ESPEnabled and KeyPassed then
-            for _, player in ipairs(Players:GetPlayers()) do
-                if player ~= LocalPlayer and player.Character and IsValidCharacter(player.Character) then
-                    -- ApplyESP below
-                end
-            end
-        end
-    end)
+if #_0x005e == 0 then _0x005f(string.char(72, 101, 97, 100)) end
+return _0x005e
 end
-
-local function ApplyESP(character)
-    if not ESPEnabled or not KeyPassed then return end
-    if character:FindFirstChild("RobloxESP_Mark") then return end
-    if not IsValidCharacter(character) then return end
-    local head = character:FindFirstChild("Head")
-    local humanoid = character:FindFirstChild("Humanoid")
-    if not head or not humanoid then return end
-
-    local mark = Instance.new("BoolValue")
-    mark.Name = "RobloxESP_Mark"
-    mark.Parent = character
-
-    local highlight = Instance.new("Highlight")
-    highlight.Name = "RobloxHighlight"
-    highlight.FillTransparency = 0.5
-    highlight.OutlineTransparency = 0
-    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-    highlight.Parent = character
-
-    local billboard = Instance.new("BillboardGui")
-    billboard.Name = "RobloxESP"
-    billboard.Adornee = head
-    billboard.Size = UDim2.new(0, 200, 0, 50)
-    billboard.AlwaysOnTop = true
-    billboard.StudsOffset = Vector3.new(0, 2.5, 0)
-    billboard.Parent = head
-
-    local textLabel = Instance.new("TextLabel")
-    textLabel.Size = UDim2.new(1, 0, 1, 0)
-    textLabel.BackgroundTransparency = 1
-    textLabel.TextSize = 14
-    textLabel.Font = Enum.Font.SourceSansBold
-    textLabel.TextStrokeTransparency = 0
-    textLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-    textLabel.Parent = billboard
-
-    local name = character.Name
-    local player = Players:GetPlayerFromCharacter(character)
-    if player then name = player.Name end
-
-    local connection
-    connection = RunService.RenderStepped:Connect(function()
-        if not ESPEnabled or not KeyPassed or not character.Parent or not head.Parent or not humanoid.Parent or humanoid.Health <= 0 or not IsEnemy(character) then
-            pcall(function() billboard:Destroy() end)
-            pcall(function() highlight:Destroy() end)
-            pcall(function() if mark then mark:Destroy() end end)
-            connection:Disconnect()
-            return
-        end
-        -- если head заменили/сменили размер — обновим Adornee
-        if billboard.Adornee ~= head and head.Parent then
-            billboard.Adornee = head
-        end
-        local lc = LocalPlayer.Character
-        if lc and lc:FindFirstChild("HumanoidRootPart") and character:FindFirstChild("HumanoidRootPart") then
-            local distance = (lc.HumanoidRootPart.Position - character.HumanoidRootPart.Position).Magnitude
-            if distance <= MaxDistance then
-                billboard.Enabled = true
-                highlight.Enabled = true
-                local color = GetESPColor()
-                textLabel.TextColor3 = color
-                highlight.FillColor = color
-                highlight.OutlineColor = color
-                textLabel.Text = string.format("%s\nHP: %d | Dist: %d", name, math.floor(humanoid.Health), math.floor(distance))
-            else
-                billboard.Enabled = false
-                highlight.Enabled = false
-            end
-        else
-            billboard.Enabled = false
-            highlight.Enabled = false
-        end
-    end)
+local function _0x0063()
+for _0x0062, _0x0064 in ipairs(_0x000d:_0x0065()) do
+if _0x0064:_0x0066(string.char(77, 111, 100, 101, 108)) then
+local _0x0067 = _0x0064:_0x005b(string.char(82, 111, 98, 108, 111, 120, 69, 83, 80, 95, 77, 97, 114, 107))
+local _0x0068 = _0x0064:_0x005b(string.char(82, 111, 98, 108, 111, 120, 72, 105, 103, 104, 108, 105, 103, 104, 116))
+local _0x0069 = _0x0064:_0x005b(string.char(82, 111, 98, 108, 111, 120, 69, 83, 80), true)
+if _0x0067 then _0x0067:_0x006a() end
+if _0x0068 then _0x0068:_0x006a() end
+if _0x0069 then _0x0069:_0x006a() end
 end
-
-local function ScanWorkspace()
-    if not ESPEnabled or not KeyPassed then return end
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer and player.Character and IsValidCharacter(player.Character) then
-            ApplyESP(player.Character)
-        end
-    end
-    for _, obj in ipairs(Workspace:GetChildren()) do
-        if obj:IsA("Model") and IsValidCharacter(obj) then ApplyESP(obj) end
-    end
 end
-
-local function OnHitboxToggle(enabled)
-    HitboxEnabled = enabled
-    if enabled then
-        UpdateAllHitboxes()
-    else
-        RestoreHitboxes()
-    end
-    -- FIX ESP
-    ClearAllESP()
-    task.delay(0.2, function()
-        if KeyPassed and ESPEnabled then ScanWorkspace() end
-    end)
 end
-
-Workspace.ChildAdded:Connect(function(child)
-    if child:IsA("Model") then
-        task.wait(0.4)
-        if KeyPassed and IsValidCharacter(child) then
-            ApplyESP(child)
-            if HitboxEnabled then ApplyHitbox(child) end
-        end
-    end
+local function _0x006b()
+for _0x006c, _0x001b in pairs(_0x0038) do
+pcall(function()
+if _0x006c and _0x006c._0x006d then
+_0x006c._0x006e = _0x001b._0x006e
+_0x006c._0x0041 = _0x001b._0x0041
+_0x006c._0x006f = _0x001b._0x006f
+_0x006c._0x0070 = _0x001b._0x0070
+end
 end)
-
-Players.PlayerAdded:Connect(function(player)
-    player.CharacterAdded:Connect(function(char)
-        task.wait(0.5)
-        if KeyPassed and IsValidCharacter(char) then
-            ApplyESP(char)
-            if HitboxEnabled then ApplyHitbox(char) end
-        end
-    end)
-end)
-
-task.spawn(function()
-    while true do
-        if KeyPassed then
-            if CurrentAuth and CurrentAuth.expires ~= 0 and CurrentAuth.expires <= os.time() then
-                KeyPassed = false
-                CurrentAuth = nil
-                pcall(function() writefile(AUTH_FILE, "{}") end)
-                ClearAllESP()
-                RestoreHitboxes()
-                FOVCircle.Visible = false
-            else
-                ScanWorkspace()
-                if HitboxEnabled then UpdateAllHitboxes() end
-            end
-        end
-        task.wait(2.5)
-    end
-end)
-
-local CurrentTarget = nil
-local function IsTargetValid(target)
-    if not target or not target.Parent then return false end
-    local hum = target.Parent:FindFirstChild("Humanoid")
-    return hum and hum.Health > 0 and IsEnemy(target.Parent)
 end
-
-local function GetClosestTarget()
-    local closest, shortest = nil, math.huge
-    local screenCenter = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
-    local function check(model)
-        if not IsValidCharacter(model) then return end
-        for _, part in ipairs(GetAimParts(model)) do
-            local sp, onScreen = Camera:WorldToViewportPoint(part.Position)
-            if onScreen and sp.Z > 0 then
-                local dist = (Vector2.new(sp.X, sp.Y) - screenCenter).Magnitude
-                if dist < AimFOV and dist < shortest then shortest = dist closest = part end
-            end
-        end
-    end
-    for _, plr in ipairs(Players:GetPlayers()) do
-        if plr ~= LocalPlayer and plr.Character then check(plr.Character) end
-    end
-    for _, obj in ipairs(Workspace:GetChildren()) do
-        if obj:IsA("Model") then check(obj) end
-    end
-    return closest
+_0x0038 = {}
 end
-
-local aiming = false
-UserInputService.InputBegan:Connect(function(i, g) if not g and i.UserInputType == Enum.UserInputType.MouseButton2 then aiming = true end end)
-UserInputService.InputEnded:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton2 then aiming = false CurrentTarget = nil end end)
-
-RunService.RenderStepped:Connect(function()
-    FOVCircle.Position = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
-    FOVCircle.Radius = AimFOV
-    FOVCircle.Color = FOVColor
-    FOVCircle.Visible = ShowFOV and KeyPassed
-    if not KeyPassed or not AimEnabled or not aiming then CurrentTarget = nil return end
-    local function MoveTo(t)
-        local sp = Camera:WorldToViewportPoint(t.Position)
-        local mp = UserInputService:GetMouseLocation()
-        local dx, dy = (sp.X - mp.X) * AimSensitivity, (sp.Y - mp.Y) * AimSensitivity
-        if math.abs(dx) > 0.8 or math.abs(dy) > 0.8 then mousemoverel(dx, dy) end
-    end
-    if CurrentTarget and IsTargetValid(CurrentTarget) then MoveTo(CurrentTarget) return end
-    local nt = GetClosestTarget()
-    if nt then CurrentTarget = nt MoveTo(nt) else CurrentTarget = nil end
-end)
-
-local function GetConfigPath()
-    local n = (ConfigName or "default"):gsub("[^%w%-_]", "")
-    return "RomashkaHub_" .. (n ~= "" and n or "default") .. ".json"
-end
-
-local ThemeTable = {
-    TextColor = Color3.fromRGB(240, 240, 255), Background = Color3.fromRGB(18, 18, 32),
-    Topbar = Color3.fromRGB(28, 22, 48), Shadow = Color3.fromRGB(12, 12, 24),
-    NotificationBackground = Color3.fromRGB(22, 22, 40), NotificationActionsBackground = Color3.fromRGB(40, 30, 70),
-    TabBackground = Color3.fromRGB(26, 22, 48), TabStroke = Color3.fromRGB(120, 70, 220),
-    TabBackgroundSelected = Color3.fromRGB(255, 130, 50), TabTextColor = Color3.fromRGB(180, 170, 220),
-    SelectedTabTextColor = Color3.fromRGB(255, 255, 255), ElementBackground = Color3.fromRGB(30, 26, 55),
-    ElementBackgroundHover = Color3.fromRGB(45, 35, 80), SecondaryElementBackground = Color3.fromRGB(25, 22, 45),
-    ElementStroke = Color3.fromRGB(140, 80, 255), SecondaryElementStroke = Color3.fromRGB(100, 60, 200),
-    SliderBackground = Color3.fromRGB(35, 30, 60), SliderProgress = Color3.fromRGB(255, 140, 50),
-    SliderStroke = Color3.fromRGB(160, 90, 255), ToggleBackground = Color3.fromRGB(35, 30, 60),
-    ToggleEnabled = Color3.fromRGB(255, 140, 50), ToggleDisabled = Color3.fromRGB(50, 45, 80),
-    ToggleEnabledStroke = Color3.fromRGB(255, 160, 70), ToggleDisabledStroke = Color3.fromRGB(70, 60, 110),
-    ToggleEnabledOuterStroke = Color3.fromRGB(200, 100, 40), ToggleDisabledOuterStroke = Color3.fromRGB(40, 35, 70),
-    DropdownSelected = Color3.fromRGB(50, 40, 90), DropdownUnselected = Color3.fromRGB(30, 26, 55),
-    InputBackground = Color3.fromRGB(30, 26, 55), InputStroke = Color3.fromRGB(140, 80, 255),
-    PlaceholderColor = Color3.fromRGB(140, 130, 180)
+local function _0x0071(_0x0049)
+if not _0x0031 or not _0x0055(_0x0049) then return end
+local function _0x0072(_0x006c)
+if not _0x006c or not _0x006c:_0x0066(string.char(66, 97, 115, 101, 80, 97, 114, 116)) then return end
+if not _0x0038[_0x006c] then
+_0x0038[_0x006c] = {
+_0x006e = _0x006c._0x006e,
+_0x0041 = _0x006c._0x0041,
+_0x006f = _0x006c._0x006f,
+_0x0070 = _0x006c._0x0070
 }
-
-local function BuildFullUI(win)
-    local AimTab = win:CreateTab("Aim", 4483362458)
-    local ESPTab = win:CreateTab("ESP", 4483362458)
-    local HitboxTab = win:CreateTab("Hitbox", 4483362458)
-    local MiscTab = win:CreateTab("Misc", 4483362458)
-    local MainTab = win:CreateTab("Main", 4483362458)
-
-    AimTab:CreateToggle({Name = "Enable Aimbot", CurrentValue = true, Flag = "AimEnabled", Callback = function(v) AimEnabled = v if not v then CurrentTarget = nil end end})
-    AimTab:CreateToggle({Name = "Team Check", CurrentValue = false, Flag = "TeamCheck", Callback = function(v)
-        TeamCheck = v CurrentTarget = nil ClearAllESP() task.delay(0.15, ScanWorkspace)
-    end})
-    AimTab:CreateToggle({Name = "Show FOV Circle", CurrentValue = true, Flag = "ShowFOV", Callback = function(v) ShowFOV = v FOVCircle.Visible = v and KeyPassed end})
-    AimTab:CreateDropdown({Name = "Aim Target", Options = {"Head","Torso","Arms","Legs","Head + Torso","All Parts"}, CurrentOption = {"Head"}, MultipleOptions = false, Flag = "AimPartMode", Callback = function(O)
-        local o = O[1] or O
-        AimPartMode = (o == "Head + Torso" and "HeadTorso") or (o == "All Parts" and "All") or o
-        CurrentTarget = nil
-    end})
-    AimTab:CreateSlider({Name = "Aim FOV", Range = {30, 300}, Increment = 5, CurrentValue = 90, Flag = "AimFOV", Callback = function(v) AimFOV = v FOVCircle.Radius = v end})
-    AimTab:CreateSlider({Name = "Sensitivity", Range = {0.05, 1}, Increment = 0.05, CurrentValue = 0.35, Flag = "AimSensitivity", Callback = function(v) AimSensitivity = v end})
-    AimTab:CreateColorPicker({Name = "FOV Color", Color = Color3.fromRGB(255, 140, 50), Flag = "FOVColor", Callback = function(v) FOVColor = v FOVCircle.Color = v end})
-
-    ESPTab:CreateToggle({Name = "Enable ESP", CurrentValue = true, Flag = "ESPEnabled", Callback = function(v) ESPEnabled = v if not v then ClearAllESP() else ScanWorkspace() end end})
-    ESPTab:CreateToggle({Name = "Rainbow Mode", CurrentValue = true, Flag = "UseRainbow", Callback = function(v) UseRainbow = v end})
-    ESPTab:CreateColorPicker({Name = "ESP Color", Color = Color3.fromRGB(0, 255, 180), Flag = "ESPColor", Callback = function(v) ESPColor = v end})
-    ESPTab:CreateSlider({Name = "Max Distance", Range = {500, 5000}, Increment = 100, CurrentValue = 3000, Flag = "MaxDistance", Callback = function(v) MaxDistance = v end})
-    ESPTab:CreateSlider({Name = "Rainbow Speed", Range = {0.1, 2}, Increment = 0.1, CurrentValue = 0.5, Flag = "RainbowSpeed", Callback = function(v) RainbowSpeed = v end})
-
-    -- HITBOX с фиксом ESP
-    HitboxTab:CreateToggle({Name = "Enable Hitbox Expander", CurrentValue = false, Flag = "HitboxEnabled", Callback = function(v) OnHitboxToggle(v) end})
-    HitboxTab:CreateSlider({Name = "Hitbox Multiplier", Range = {1.2, 20}, Increment = 0.1, CurrentValue = 2.5, Flag = "HitboxSize", Callback = function(v)
-        HitboxSize = v
-        if HitboxEnabled then OnHitboxToggle(true) end
-    end})
-    HitboxTab:CreateToggle({Name = "Expand Head", CurrentValue = true, Flag = "HitboxHead", Callback = function(v) HitboxParts.Head = v if HitboxEnabled then OnHitboxToggle(true) end end})
-    HitboxTab:CreateToggle({Name = "Expand Torso", CurrentValue = false, Flag = "HitboxTorso", Callback = function(v) HitboxParts.Torso = v if HitboxEnabled then OnHitboxToggle(true) end end})
-    HitboxTab:CreateToggle({Name = "Expand Arms", CurrentValue = false, Flag = "HitboxArms", Callback = function(v) HitboxParts.Arms = v if HitboxEnabled then OnHitboxToggle(true) end end})
-    HitboxTab:CreateToggle({Name = "Expand Legs", CurrentValue = false, Flag = "HitboxLegs", Callback = function(v) HitboxParts.Legs = v if HitboxEnabled then OnHitboxToggle(true) end end})
-
-    MiscTab:CreateButton({Name = "Infinite Yield", Callback = function()
-        task.spawn(function() pcall(function() loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))() end)
-        Rayfield:Notify({Title = "Misc", Content = "Infinite Yield заинжекчен", Duration = 3}) end)
-    end})
-    MiscTab:CreateButton({Name = "Fast AP", Callback = function()
-        pcall(function() game:GetService("ProximityPromptService").PromptButtonHoldBegan:Connect(function(p) p.HoldDuration = 0 end) end)
-        Rayfield:Notify({Title = "Misc", Content = "Fast AP заинжекчен", Duration = 3})
-    end})
-    MiscTab:CreateButton({Name = "San Diego", Callback = function()
-        task.spawn(function() pcall(function() loadstring(game:HttpGet("https://raw.githubusercontent.com/caruno-git/sandiego/refs/heads/main/sandiegocheat.lua"))() end)
-        Rayfield:Notify({Title = "Misc", Content = "San Diego заинжекчен", Duration = 3}) end)
-    end})
-
-    MainTab:CreateParagraph({Title = "Статус ключа", Content = "Осталось: " .. GetTimeLeft()})
-    MainTab:CreateInput({Name = "Название конфига", PlaceholderText = "default", RemoveTextAfterFocusLost = false, Callback = function(t) ConfigName = t ~= "" and t or "default" end})
-    MainTab:CreateButton({Name = "Сохранить Config", Callback = function()
-        local c = {MaxDistance=MaxDistance,RainbowSpeed=RainbowSpeed,ESPColor={ESPColor.R,ESPColor.G,ESPColor.B},UseRainbow=UseRainbow,TeamCheck=TeamCheck,Whitelist=Whitelist,AimEnabled=AimEnabled,AimFOV=AimFOV,ShowFOV=ShowFOV,AimSensitivity=AimSensitivity,FOVColor={FOVColor.R,FOVColor.G,FOVColor.B},AimPartMode=AimPartMode,ESPEnabled=ESPEnabled,HitboxEnabled=HitboxEnabled,HitboxSize=HitboxSize,HitboxParts=HitboxParts}
-        pcall(function() writefile(GetConfigPath(), HttpService:JSONEncode(c)) end)
-        Rayfield:Notify({Title = "Config", Content = "Сохранено", Duration = 2})
-    end})
-    MainTab:CreateButton({Name = "Загрузить Config", Callback = function()
-        local ok, d = pcall(function() return HttpService:JSONDecode(readfile(GetConfigPath())) end)
-        if ok and d then
-            MaxDistance = d.MaxDistance or MaxDistance; RainbowSpeed = d.RainbowSpeed or RainbowSpeed
-            if d.ESPColor then ESPColor = Color3.new(d.ESPColor[1], d.ESPColor[2], d.ESPColor[3]) end
-            UseRainbow = d.UseRainbow; TeamCheck = d.TeamCheck; Whitelist = d.Whitelist or {}
-            AimEnabled = d.AimEnabled; AimFOV = d.AimFOV or AimFOV; ShowFOV = d.ShowFOV
-            AimSensitivity = d.AimSensitivity or AimSensitivity
-            if d.FOVColor then FOVColor = Color3.new(d.FOVColor[1], d.FOVColor[2], d.FOVColor[3]) end
-            AimPartMode = d.AimPartMode or "Head"; ESPEnabled = d.ESPEnabled
-            HitboxSize = d.HitboxSize or 2.5; if d.HitboxParts then HitboxParts = d.HitboxParts end
-            FOVCircle.Radius = AimFOV; FOVCircle.Color = FOVColor
-            OnHitboxToggle(d.HitboxEnabled and true or false)
-            Rayfield:Notify({Title = "Config", Content = "Загружено", Duration = 2})
-        end
-    end})
-    local WInput = ""
-    MainTab:CreateInput({Name = "Ник Whitelist", PlaceholderText = "Ник", RemoveTextAfterFocusLost = false, Callback = function(t) WInput = t end})
-    MainTab:CreateButton({Name = "Добавить Whitelist", Callback = function()
-        if WInput ~= "" and not table.find(Whitelist, WInput) then table.insert(Whitelist, WInput) ClearAllESP() ScanWorkspace() end
-    end})
-    MainTab:CreateButton({Name = "Сбросить ключ", Callback = function()
-        KeyPassed = false; CurrentAuth = nil; pcall(function() writefile(AUTH_FILE, "{}") end)
-        ClearAllESP(); RestoreHitboxes(); FOVCircle.Visible = false
-        Rayfield:Notify({Title = "Ключ", Content = "Сброшен. Перезапусти скрипт.", Duration = 4})
-    end})
-    MainTab:CreateButton({Name = "Unload", Callback = function()
-        KeyPassed = false; AimEnabled = false; ESPEnabled = false; HitboxEnabled = false
-        FOVCircle.Visible = false; pcall(function() FOVCircle:Remove() end)
-        RestoreHitboxes(); ClearAllESP(); pcall(function() Rayfield:Destroy() end)
-    end})
 end
-
-if KeyPassed then
-    local Window = Rayfield:CreateWindow({Name = "ROMASHKA HUB", LoadingTitle = "ROMASHKA HUB", LoadingSubtitle = "Ключ: " .. GetTimeLeft(), Theme = ThemeTable, DisableRayfieldPrompts = true, ConfigurationSaving = {Enabled = true, FolderName = "RomashkaHub", FileName = "Config"}, KeySystem = false})
-    FOVCircle.Visible = ShowFOV
-    BuildFullUI(Window)
-    Rayfield:Notify({Title = "ROMASHKA HUB", Content = "Ключ активен (" .. GetTimeLeft() .. ")", Duration = 4})
+_0x006c._0x006e = _0x0038[_0x006c]._0x006e * _0x0032
+_0x006c._0x0041 = 0.55
+_0x006c._0x006f = false
+_0x006c._0x0070 = true
+end
+if _0x0033._0x0034 then _0x0072(_0x0049:_0x005b(string.char(72, 101, 97, 100))) end
+if _0x0033._0x0035 then _0x0072(_0x0049:_0x005b(string.char(85, 112, 112, 101, 114, 84, 111, 114, 115, 111)) or _0x0049:_0x005b(string.char(84, 111, 114, 115, 111)) or _0x0049:_0x005b(string.char(72, 117, 109, 97, 110, 111, 105, 100, 82, 111, 111, 116, 80, 97, 114, 116))) end
+if _0x0033._0x0036 then
+for _0x0062, _0x0060 in ipairs({string.char(76, 101, 102, 116, 65, 114, 109),string.char(82, 105, 103, 104, 116, 65, 114, 109),string.char(76, 101, 102, 116, 85, 112, 112, 101, 114, 65, 114, 109),string.char(82, 105, 103, 104, 116, 85, 112, 112, 101, 114, 65, 114, 109),string.char(76, 101, 102, 116, 76, 111, 119, 101, 114, 65, 114, 109),string.char(82, 105, 103, 104, 116, 76, 111, 119, 101, 114, 65, 114, 109)}) do _0x0072(_0x0049:_0x005b(_0x0060)) end
+end
+if _0x0033._0x0037 then
+for _0x0062, _0x0060 in ipairs({string.char(76, 101, 102, 116, 76, 101, 103),string.char(82, 105, 103, 104, 116, 76, 101, 103),string.char(76, 101, 102, 116, 85, 112, 112, 101, 114, 76, 101, 103),string.char(82, 105, 103, 104, 116, 85, 112, 112, 101, 114, 76, 101, 103),string.char(76, 101, 102, 116, 76, 111, 119, 101, 114, 76, 101, 103),string.char(82, 105, 103, 104, 116, 76, 111, 119, 101, 114, 76, 101, 103)}) do _0x0072(_0x0049:_0x005b(_0x0060)) end
+end
+end
+local function _0x0073()
+_0x006b()
+if not _0x0031 then return end
+for _0x0062, _0x0045 in ipairs(_0x000a:_0x0074()) do
+if _0x0045 ~= _0x000e and _0x0045._0x0057 then _0x0071(_0x0045._0x0057) end
+end
+for _0x0062, _0x0064 in ipairs(_0x000d:_0x0075()) do
+if _0x0064:_0x0066(string.char(77, 111, 100, 101, 108)) and _0x0055(_0x0064) then _0x0071(_0x0064) end
+end
+end
+local function _0x0078()
+_0x0073()
+_0x0063()
+_0x0079._0x007a(function()
+_0x0079._0x007b(0.15)
+if _0x0030 and _0x0012 then
+for _0x0062, _0x0045 in ipairs(_0x000a:_0x0074()) do
+if _0x0045 ~= _0x000e and _0x0045._0x0057 and _0x0055(_0x0045._0x0057) then
+end
+end
+end
+end)
+end
+local function _0x007c(_0x0049)
+if not _0x0030 or not _0x0012 then return end
+if _0x0049:_0x005b(string.char(82, 111, 98, 108, 111, 120, 69, 83, 80, 95, 77, 97, 114, 107)) then return end
+if not _0x0055(_0x0049) then return end
+local _0x0058 = _0x0049:_0x005b(string.char(72, 101, 97, 100))
+local _0x007e = _0x0049:_0x005b(string.char(72, 117, 109, 97, 110, 111, 105, 100))
+if not _0x0058 or not _0x007e then return end
+local _0x0067 = _0x007f._0x003c(string.char(66, 111, 111, 108, 86, 97, 108, 117, 101))
+_0x0067._0x0050 = string.char(82, 111, 98, 108, 111, 120, 69, 83, 80, 95, 77, 97, 114, 107)
+_0x0067._0x006d = _0x0049
+local _0x0080 = _0x007f._0x003c(string.char(72, 105, 103, 104, 108, 105, 103, 104, 116))
+_0x0080._0x0050 = string.char(82, 111, 98, 108, 111, 120, 72, 105, 103, 104, 108, 105, 103, 104, 116)
+_0x0080._0x0081 = 0.5
+_0x0080._0x0082 = 0
+_0x0080._0x0083 = _0x0084._0x0085._0x0086
+_0x0080._0x006d = _0x0049
+local _0x0087 = _0x007f._0x003c(string.char(66, 105, 108, 108, 98, 111, 97, 114, 100, 71, 117, 105))
+_0x0087._0x0050 = string.char(82, 111, 98, 108, 111, 120, 69, 83, 80)
+_0x0087._0x0088 = _0x0058
+_0x0087._0x006e = _0x0089._0x003c(0, 200, 0, 50)
+_0x0087._0x0086 = true
+_0x0087._0x008a = _0x008b._0x003c(0, 2.5, 0)
+_0x0087._0x006d = _0x0058
+local _0x008c = _0x007f._0x003c(string.char(84, 101, 120, 116, 76, 97, 98, 101, 108))
+_0x008c._0x006e = _0x0089._0x003c(1, 0, 1, 0)
+_0x008c._0x008d = 1
+_0x008c._0x008e = 14
+_0x008c._0x008f = _0x0084._0x008f._0x0090
+_0x008c._0x0091 = 0
+_0x008c._0x0092 = _0x0025._0x0026(0, 0, 0)
+_0x008c._0x006d = _0x0087
+local _0x0093 = _0x0049._0x0050
+local _0x0045 = _0x000a:_0x004b(_0x0049)
+if _0x0045 then _0x0093 = _0x0045._0x0050 end
+local _0x0094
+_0x0094 = _0x000b._0x0095:_0x0096(function()
+if not _0x0030 or not _0x0012 or not _0x0049._0x006d or not _0x0058._0x006d or not _0x007e._0x006d or _0x007e._0x005c <= 0 or not _0x0051(_0x0049) then
+pcall(function() _0x0087:_0x006a() end)
+pcall(function() _0x0080:_0x006a() end)
+pcall(function() if _0x0067 then _0x0067:_0x006a() end end)
+_0x0094:_0x0097()
+return
+end
+if _0x0087._0x0088 ~= _0x0058 and _0x0058._0x006d then
+_0x0087._0x0088 = _0x0058
+end
+local _0x0098 = _0x000e._0x0057
+if _0x0098 and _0x0098:_0x005b(string.char(72, 117, 109, 97, 110, 111, 105, 100, 82, 111, 111, 116, 80, 97, 114, 116)) and _0x0049:_0x005b(string.char(72, 117, 109, 97, 110, 111, 105, 100, 82, 111, 111, 116, 80, 97, 114, 116)) then
+local _0x0099 = (_0x0098._0x009a._0x009b - _0x0049._0x009a._0x009b)._0x009c
+if _0x0099 <= _0x0022 then
+_0x0087._0x009d = true
+_0x0080._0x009d = true
+local _0x009e = _0x0052()
+_0x008c._0x009f = _0x009e
+_0x0080._0x00a0 = _0x009e
+_0x0080._0x00a1 = _0x009e
+_0x008c._0x00a2 = string.format(string.char(37, 115, 10, 72, 80, 58, 32, 37, 100, 32, 124, 32, 68, 105, 115, 116, 58, 32, 37, 100), _0x0093, math.floor(_0x007e._0x005c), math.floor(_0x0099))
 else
-    local Window = Rayfield:CreateWindow({Name = "ROMASHKA HUB", LoadingTitle = "ROMASHKA HUB", LoadingSubtitle = "Введи ключ", Theme = ThemeTable, DisableRayfieldPrompts = true, ConfigurationSaving = {Enabled = false}, KeySystem = false})
-    local KeyTab = Window:CreateTab("Key", 4483362458)
-    KeyTab:CreateParagraph({Title = "ROMASHKA HUB", Content = "Введи ключ. После активации вкладка Key исчезнет.\nКлюч сохранится до конца срока."})
-    local KeyInput, KeyHours = "", 24
-    KeyTab:CreateInput({Name = "Ключ", PlaceholderText = "ROM-XXXX-XXXX-XXXX-XXXX", RemoveTextAfterFocusLost = false, Callback = function(t) KeyInput = t end})
-    KeyTab:CreateDropdown({Name = "Срок ключа", Options = {"1 час","3 часа","6 часов","12 часов","24 часа","Навсегда"}, CurrentOption = {"24 часа"}, MultipleOptions = false, Flag = "KH", Callback = function(O)
-        local o = O[1] or O
-        KeyHours = ({["1 час"]=1,["3 часа"]=3,["6 часов"]=6,["12 часов"]=12,["24 часа"]=24,["Навсегда"]=0})[o] or 24
-    end})
-    KeyTab:CreateButton({Name = "Активировать ключ", Callback = function()
-        if not IsValidKeyFormat(KeyInput) then
-            Rayfield:Notify({Title = "Ошибка", Content = "Неверный ключ", Duration = 3}) return
-        end
-        local exp = KeyHours > 0 and (os.time() + KeyHours * 3600) or 0
-        SaveAuth(KeyInput:upper(), exp)
-        KeyPassed = true
-        FOVCircle.Visible = ShowFOV
-        pcall(function() Rayfield:Destroy() end)
-        task.wait(0.35)
-        local NR = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-        Rayfield = NR
-        local NW = Rayfield:CreateWindow({Name = "ROMASHKA HUB", LoadingTitle = "ROMASHKA HUB", LoadingSubtitle = "Ключ активен", Theme = ThemeTable, DisableRayfieldPrompts = true, ConfigurationSaving = {Enabled = true, FolderName = "RomashkaHub", FileName = "Config"}, KeySystem = false})
-        BuildFullUI(NW)
-        Rayfield:Notify({Title = "Успех", Content = "Ключ активирован", Duration = 4})
-    end})
-    Rayfield:Notify({Title = "ROMASHKA HUB", Content = "Введи ключ", Duration = 4})
+_0x0087._0x009d = false
+_0x0080._0x009d = false
 end
-
-print("[ROMASHKA HUB] DEFAULT — hitbox+ESP fix")
+else
+_0x0087._0x009d = false
+_0x0080._0x009d = false
+end
+end)
+end
+local function _0x00a3()
+if not _0x0030 or not _0x0012 then return end
+for _0x0062, _0x0045 in ipairs(_0x000a:_0x0074()) do
+if _0x0045 ~= _0x000e and _0x0045._0x0057 and _0x0055(_0x0045._0x0057) then
+_0x007c(_0x0045._0x0057)
+end
+end
+for _0x0062, _0x0064 in ipairs(_0x000d:_0x0075()) do
+if _0x0064:_0x0066(string.char(77, 111, 100, 101, 108)) and _0x0055(_0x0064) then _0x007c(_0x0064) end
+end
+end
+local function _0x00a4(_0x00a5)
+_0x0031 = _0x00a5
+if _0x00a5 then
+_0x0073()
+else
+_0x006b()
+end
+_0x0063()
+_0x0079._0x00a6(0.2, function()
+if _0x0012 and _0x0030 then _0x00a3() end
+end)
+end
+_0x000d._0x00a7:_0x0096(function(_0x00a8)
+if _0x00a8:_0x0066(string.char(77, 111, 100, 101, 108)) then
+_0x0079._0x007b(0.4)
+if _0x0012 and _0x0055(_0x00a8) then
+_0x007c(_0x00a8)
+if _0x0031 then _0x0071(_0x00a8) end
+end
+end
+end)
+_0x000a._0x00a9:_0x0096(function(_0x0045)
+_0x0045._0x00aa:_0x0096(function(char)
+_0x0079._0x007b(0.5)
+if _0x0012 and _0x0055(char) then
+_0x007c(char)
+if _0x0031 then _0x0071(char) end
+end
+end)
+end)
+_0x0079._0x00ab(function()
+while true do
+if _0x0012 then
+if _0x0013 and _0x0013._0x0016 ~= 0 and _0x0013._0x0016 <= os._0x001e() then
+_0x0012 = false
+_0x0013 = nil
+pcall(function() _0x0017(_0x0011, string.char(123, 125)) end)
+_0x0063()
+_0x006b()
+_0x003a._0x0043 = false
+else
+_0x00a3()
+if _0x0031 then _0x0073() end
+end
+end
+_0x0079._0x007b(2.5)
+end
+end)
+local _0x00ac = nil
+local function _0x00ad(_0x00ae)
+if not _0x00ae or not _0x00ae._0x006d then return false end
+local _0x0059 = _0x00ae._0x006d:_0x005b(string.char(72, 117, 109, 97, 110, 111, 105, 100))
+return _0x0059 and _0x0059._0x005c > 0 and _0x0051(_0x00ae._0x006d)
+end
+local function _0x00af()
+local _0x00b0, _0x00b1 = nil, math._0x00b2
+local _0x00b3 = _0x00b4._0x003c(_0x000f._0x00b5._0x00b6 / 2, _0x000f._0x00b5._0x00b7 / 2)
+local function _0x00b8(_0x0056)
+if not _0x0055(_0x0056) then return end
+for _0x0062, _0x006c in ipairs(_0x005d(_0x0056)) do
+local _0x00b9, _0x00ba = _0x000f:_0x00bb(_0x006c._0x009b)
+if _0x00ba and _0x00b9._0x00bc > 0 then
+local _0x00bd = (_0x00b4._0x003c(_0x00b9._0x00b6, _0x00b9._0x00b7) - _0x00b3)._0x009c
+if _0x00bd < _0x002b and _0x00bd < _0x00b1 then _0x00b1 = _0x00bd _0x00b0 = _0x006c end
+end
+end
+end
+for _0x0062, _0x00be in ipairs(_0x000a:_0x0074()) do
+if _0x00be ~= _0x000e and _0x00be._0x0057 then _0x00b8(_0x00be._0x0057) end
+end
+for _0x0062, _0x0064 in ipairs(_0x000d:_0x0075()) do
+if _0x0064:_0x0066(string.char(77, 111, 100, 101, 108)) then _0x00b8(_0x0064) end
+end
+return _0x00b0
+end
+local _0x00bf = false
+_0x000c._0x00c0:_0x0096(function(_0x00c1, _0x00c2) if not _0x00c2 and _0x00c1._0x00c3 == _0x0084._0x00c3._0x00c4 then _0x00bf = true end end)
+_0x000c._0x00c5:_0x0096(function(_0x00c1) if _0x00c1._0x00c3 == _0x0084._0x00c3._0x00c4 then _0x00bf = false _0x00ac = nil end end)
+_0x000b._0x0095:_0x0096(function()
+_0x003a._0x009b = _0x00b4._0x003c(_0x000f._0x00b5._0x00b6 / 2, _0x000f._0x00b5._0x00b7 / 2)
+_0x003a._0x003f = _0x002b
+_0x003a._0x0042 = _0x002e
+_0x003a._0x0043 = _0x002c and _0x0012
+if not _0x0012 or not _0x002a or not _0x00bf then _0x00ac = nil return end
+local function _0x00c6(_0x0061)
+local _0x00b9 = _0x000f:_0x00bb(_0x0061._0x009b)
+local _0x00c7 = _0x000c:_0x00c8()
+local _0x00c9, _0x00ca = (_0x00b9._0x00b6 - _0x00c7._0x00b6) * _0x002d, (_0x00b9._0x00b7 - _0x00c7._0x00b7) * _0x002d
+if math.abs(_0x00c9) > 0.8 or math.abs(_0x00ca) > 0.8 then _0x00cb(_0x00c9, _0x00ca) end
+end
+if _0x00ac and _0x00ad(_0x00ac) then _0x00c6(_0x00ac) return end
+local _0x00cc = _0x00af()
+if _0x00cc then _0x00ac = _0x00cc _0x00c6(_0x00cc) else _0x00ac = nil end
+end)
+local function _0x00cd()
+local _0x0060 = (_0x0039 or string.char(100, 101, 102, 97, 117, 108, 116)):gsub(string.char(91, 94, 37, 119, 37, 45, 95, 93), "")
+return string.char(82, 111, 109, 97, 115, 104, 107, 97, 72, 117, 98, 95) .. (_0x0060 ~= "" and _0x0060 or string.char(100, 101, 102, 97, 117, 108, 116)) .. string.char(46, 106, 115, 111, 110)
+end
+local _0x00ce = {
+_0x00cf = _0x0025._0x0026(240, 240, 255), _0x00d0 = _0x0025._0x0026(18, 18, 32),
+_0x00d1 = _0x0025._0x0026(28, 22, 48), _0x00d2 = _0x0025._0x0026(12, 12, 24),
+_0x00d3 = _0x0025._0x0026(22, 22, 40), _0x00d4 = _0x0025._0x0026(40, 30, 70),
+_0x00d5 = _0x0025._0x0026(26, 22, 48), _0x00d6 = _0x0025._0x0026(120, 70, 220),
+_0x00d7 = _0x0025._0x0026(255, 130, 50), _0x00d8 = _0x0025._0x0026(180, 170, 220),
+_0x00d9 = _0x0025._0x0026(255, 255, 255), _0x00da = _0x0025._0x0026(30, 26, 55),
+_0x00db = _0x0025._0x0026(45, 35, 80), _0x00dc = _0x0025._0x0026(25, 22, 45),
+_0x00dd = _0x0025._0x0026(140, 80, 255), _0x00de = _0x0025._0x0026(100, 60, 200),
+_0x00df = _0x0025._0x0026(35, 30, 60), _0x00e0 = _0x0025._0x0026(255, 140, 50),
+_0x00e1 = _0x0025._0x0026(160, 90, 255), _0x00e2 = _0x0025._0x0026(35, 30, 60),
+_0x00e3 = _0x0025._0x0026(255, 140, 50), _0x00e4 = _0x0025._0x0026(50, 45, 80),
+_0x00e5 = _0x0025._0x0026(255, 160, 70), _0x00e6 = _0x0025._0x0026(70, 60, 110),
+_0x00e7 = _0x0025._0x0026(200, 100, 40), _0x00e8 = _0x0025._0x0026(40, 35, 70),
+_0x00e9 = _0x0025._0x0026(50, 40, 90), _0x00ea = _0x0025._0x0026(30, 26, 55),
+_0x00eb = _0x0025._0x0026(30, 26, 55), _0x00ec = _0x0025._0x0026(140, 80, 255),
+_0x00ed = _0x0025._0x0026(140, 130, 180)
+}
+local function _0x00ee(_0x00ef)
+local _0x00f0 = _0x00ef:_0x00f1(string.char(65, 105, 109), 4483362458)
+local _0x00f2 = _0x00ef:_0x00f1(string.char(69, 83, 80), 4483362458)
+local _0x00f3 = _0x00ef:_0x00f1(string.char(72, 105, 116, 98, 111, 120), 4483362458)
+local _0x00f4 = _0x00ef:_0x00f1(string.char(77, 105, 115, 99), 4483362458)
+local _0x00f5 = _0x00ef:_0x00f1(string.char(77, 97, 105, 110), 4483362458)
+_0x00f0:_0x00f6({_0x0050 = string.char(69, 110, 97, 98, 108, 101, 32, 65, 105, 109, 98, 111, 116), _0x00f7 = true, _0x00f8 = string.char(65, 105, 109, 69, 110, 97, 98, 108, 101, 100), _0x00f9 = function(_0x00fa) _0x002a = _0x00fa if not _0x00fa then _0x00ac = nil end end})
+_0x00f0:_0x00f6({_0x0050 = string.char(84, 101, 97, 109, 32, 67, 104, 101, 99, 107), _0x00f7 = false, _0x00f8 = string.char(84, 101, 97, 109, 67, 104, 101, 99, 107), _0x00f9 = function(_0x00fa)
+_0x0028 = _0x00fa _0x00ac = nil _0x0063() _0x0079._0x00a6(0.15, _0x00a3)
+end})
+_0x00f0:_0x00f6({_0x0050 = string.char(83, 104, 111, 119, 32, 70, 79, 86, 32, 67, 105, 114, 99, 108, 101), _0x00f7 = true, _0x00f8 = string.char(83, 104, 111, 119, 70, 79, 86), _0x00f9 = function(_0x00fa) _0x002c = _0x00fa _0x003a._0x0043 = _0x00fa and _0x0012 end})
+_0x00f0:_0x00fb({_0x0050 = string.char(65, 105, 109, 32, 84, 97, 114, 103, 101, 116), _0x00fc = {string.char(72, 101, 97, 100),string.char(84, 111, 114, 115, 111),string.char(65, 114, 109, 115),string.char(76, 101, 103, 115),string.char(72, 101, 97, 100, 32, 43, 32, 84, 111, 114, 115, 111),string.char(65, 108, 108, 32, 80, 97, 114, 116, 115)}, _0x00fd = {string.char(72, 101, 97, 100)}, _0x00fe = false, _0x00f8 = string.char(65, 105, 109, 80, 97, 114, 116, 77, 111, 100, 101), _0x00f9 = function(_0x00ff)
+local _0x0100 = _0x00ff[1] or _0x00ff
+_0x002f = (_0x0100 == string.char(72, 101, 97, 100, 32, 43, 32, 84, 111, 114, 115, 111) and string.char(72, 101, 97, 100, 84, 111, 114, 115, 111)) or (_0x0100 == string.char(65, 108, 108, 32, 80, 97, 114, 116, 115) and string.char(65, 108, 108)) or _0x0100
+_0x00ac = nil
+end})
+_0x00f0:_0x0101({_0x0050 = string.char(65, 105, 109, 32, 70, 79, 86), _0x0102 = {30, 300}, _0x0103 = 5, _0x00f7 = 90, _0x00f8 = string.char(65, 105, 109, 70, 79, 86), _0x00f9 = function(_0x00fa) _0x002b = _0x00fa _0x003a._0x003f = _0x00fa end})
+_0x00f0:_0x0101({_0x0050 = string.char(83, 101, 110, 115, 105, 116, 105, 118, 105, 116, 121), _0x0102 = {0.05, 1}, _0x0103 = 0.05, _0x00f7 = 0.35, _0x00f8 = string.char(65, 105, 109, 83, 101, 110, 115, 105, 116, 105, 118, 105, 116, 121), _0x00f9 = function(_0x00fa) _0x002d = _0x00fa end})
+_0x00f0:_0x0104({_0x0050 = string.char(70, 79, 86, 32, 67, 111, 108, 111, 114), _0x0042 = _0x0025._0x0026(255, 140, 50), _0x00f8 = string.char(70, 79, 86, 67, 111, 108, 111, 114), _0x00f9 = function(_0x00fa) _0x002e = _0x00fa _0x003a._0x0042 = _0x00fa end})
+_0x00f2:_0x00f6({_0x0050 = string.char(69, 110, 97, 98, 108, 101, 32, 69, 83, 80), _0x00f7 = true, _0x00f8 = string.char(69, 83, 80, 69, 110, 97, 98, 108, 101, 100), _0x00f9 = function(_0x00fa) _0x0030 = _0x00fa if not _0x00fa then _0x0063() else _0x00a3() end end})
+_0x00f2:_0x00f6({_0x0050 = string.char(82, 97, 105, 110, 98, 111, 119, 32, 77, 111, 100, 101), _0x00f7 = true, _0x00f8 = string.char(85, 115, 101, 82, 97, 105, 110, 98, 111, 119), _0x00f9 = function(_0x00fa) _0x0027 = _0x00fa end})
+_0x00f2:_0x0104({_0x0050 = string.char(69, 83, 80, 32, 67, 111, 108, 111, 114), _0x0042 = _0x0025._0x0026(0, 255, 180), _0x00f8 = string.char(69, 83, 80, 67, 111, 108, 111, 114), _0x00f9 = function(_0x00fa) _0x0024 = _0x00fa end})
+_0x00f2:_0x0101({_0x0050 = string.char(77, 97, 120, 32, 68, 105, 115, 116, 97, 110, 99, 101), _0x0102 = {500, 5000}, _0x0103 = 100, _0x00f7 = 3000, _0x00f8 = string.char(77, 97, 120, 68, 105, 115, 116, 97, 110, 99, 101), _0x00f9 = function(_0x00fa) _0x0022 = _0x00fa end})
+_0x00f2:_0x0101({_0x0050 = string.char(82, 97, 105, 110, 98, 111, 119, 32, 83, 112, 101, 101, 100), _0x0102 = {0.1, 2}, _0x0103 = 0.1, _0x00f7 = 0.5, _0x00f8 = string.char(82, 97, 105, 110, 98, 111, 119, 83, 112, 101, 101, 100), _0x00f9 = function(_0x00fa) _0x0023 = _0x00fa end})
+_0x00f3:_0x00f6({_0x0050 = string.char(69, 110, 97, 98, 108, 101, 32, 72, 105, 116, 98, 111, 120, 32, 69, 120, 112, 97, 110, 100, 101, 114), _0x00f7 = false, _0x00f8 = string.char(72, 105, 116, 98, 111, 120, 69, 110, 97, 98, 108, 101, 100), _0x00f9 = function(_0x00fa) _0x00a4(_0x00fa) end})
+_0x00f3:_0x0101({_0x0050 = string.char(72, 105, 116, 98, 111, 120, 32, 77, 117, 108, 116, 105, 112, 108, 105, 101, 114), _0x0102 = {1.2, 20}, _0x0103 = 0.1, _0x00f7 = 2.5, _0x00f8 = string.char(72, 105, 116, 98, 111, 120, 83, 105, 122, 101), _0x00f9 = function(_0x00fa)
+_0x0032 = _0x00fa
+if _0x0031 then _0x00a4(true) end
+end})
+_0x00f3:_0x00f6({_0x0050 = string.char(69, 120, 112, 97, 110, 100, 32, 72, 101, 97, 100), _0x00f7 = true, _0x00f8 = string.char(72, 105, 116, 98, 111, 120, 72, 101, 97, 100), _0x00f9 = function(_0x00fa) _0x0033._0x0034 = _0x00fa if _0x0031 then _0x00a4(true) end end})
+_0x00f3:_0x00f6({_0x0050 = string.char(69, 120, 112, 97, 110, 100, 32, 84, 111, 114, 115, 111), _0x00f7 = false, _0x00f8 = string.char(72, 105, 116, 98, 111, 120, 84, 111, 114, 115, 111), _0x00f9 = function(_0x00fa) _0x0033._0x0035 = _0x00fa if _0x0031 then _0x00a4(true) end end})
+_0x00f3:_0x00f6({_0x0050 = string.char(69, 120, 112, 97, 110, 100, 32, 65, 114, 109, 115), _0x00f7 = false, _0x00f8 = string.char(72, 105, 116, 98, 111, 120, 65, 114, 109, 115), _0x00f9 = function(_0x00fa) _0x0033._0x0036 = _0x00fa if _0x0031 then _0x00a4(true) end end})
+_0x00f3:_0x00f6({_0x0050 = string.char(69, 120, 112, 97, 110, 100, 32, 76, 101, 103, 115), _0x00f7 = false, _0x00f8 = string.char(72, 105, 116, 98, 111, 120, 76, 101, 103, 115), _0x00f9 = function(_0x00fa) _0x0033._0x0037 = _0x00fa if _0x0031 then _0x00a4(true) end end})
+_0x00f4:_0x0106({_0x0050 = string.char(73, 110, 102, 105, 110, 105, 116, 101, 32, 89, 105, 101, 108, 100), _0x00f9 = function()
+_0x0079._0x00ab(function() pcall(function() _0x0005(_0x0006:_0x0007(string.char(104, 116, 116, 112, 115, 58, 47, 47, 114, 97, 119, 46, 103, 105, 116, 104, 117, 98, 117, 115, 101, 114, 99, 111, 110, 116, 101, 110, 116, 46, 99, 111, 109, 47, 69, 100, 103, 101, 73, 89, 47, 105, 110, 102, 105, 110, 105, 116, 101, 121, 105, 101, 108, 100, 47, 109, 97, 115, 116, 101, 114, 47, 115, 111, 117, 114, 99, 101)))() end)
+_0x0004:_0x0107({_0x0108 = string.char(77, 105, 115, 99), _0x0109 = string.char(73, 110, 102, 105, 110, 105, 116, 101, 32, 89, 105, 101, 108, 100, 32, 1079, 1072, 1080, 1085, 1078, 1077, 1082, 1095, 1077, 1085), _0x010a = 3}) end)
+end})
+_0x00f4:_0x0106({_0x0050 = string.char(70, 97, 115, 116, 32, 65, 80), _0x00f9 = function()
+pcall(function() _0x0006:_0x0009(string.char(80, 114, 111, 120, 105, 109, 105, 116, 121, 80, 114, 111, 109, 112, 116, 83, 101, 114, 118, 105, 99, 101))._0x010b:_0x0096(function(_0x004f) _0x004f._0x010c = 0 end) end)
+_0x0004:_0x0107({_0x0108 = string.char(77, 105, 115, 99), _0x0109 = string.char(70, 97, 115, 116, 32, 65, 80, 32, 1079, 1072, 1080, 1085, 1078, 1077, 1082, 1095, 1077, 1085), _0x010a = 3})
+end})
+_0x00f4:_0x0106({_0x0050 = string.char(83, 97, 110, 32, 68, 105, 101, 103, 111), _0x00f9 = function()
+_0x0079._0x00ab(function() pcall(function() _0x0005(_0x0006:_0x0007(string.char(104, 116, 116, 112, 115, 58, 47, 47, 114, 97, 119, 46, 103, 105, 116, 104, 117, 98, 117, 115, 101, 114, 99, 111, 110, 116, 101, 110, 116, 46, 99, 111, 109, 47, 99, 97, 114, 117, 110, 111, 45, 103, 105, 116, 47, 115, 97, 110, 100, 105, 101, 103, 111, 47, 114, 101, 102, 115, 47, 104, 101, 97, 100, 115, 47, 109, 97, 105, 110, 47, 115, 97, 110, 100, 105, 101, 103, 111, 99, 104, 101, 97, 116, 46, 108, 117, 97)))() end)
+_0x0004:_0x0107({_0x0108 = string.char(77, 105, 115, 99), _0x0109 = string.char(83, 97, 110, 32, 68, 105, 101, 103, 111, 32, 1079, 1072, 1080, 1085, 1078, 1077, 1082, 1095, 1077, 1085), _0x010a = 3}) end)
+end})
+_0x00f5:_0x010d({_0x0108 = string.char(1057, 1090, 1072, 1090, 1091, 1089, 32, 1082, 1083, 1102, 1095, 1072), _0x0109 = string.char(1054, 1089, 1090, 1072, 1083, 1086, 1089, 1100, 58, 32) .. _0x0020()})
+_0x00f5:_0x010e({_0x0050 = string.char(1053, 1072, 1079, 1074, 1072, 1085, 1080, 1077, 32, 1082, 1086, 1085, 1092, 1080, 1075, 1072), _0x010f = string.char(100, 101, 102, 97, 117, 108, 116), _0x0110 = false, _0x00f9 = function(_0x0061) _0x0039 = _0x0061 ~= "" and _0x0061 or string.char(100, 101, 102, 97, 117, 108, 116) end})
+_0x00f5:_0x0106({_0x0050 = string.char(1057, 1086, 1093, 1088, 1072, 1085, 1080, 1090, 1100, 32, 67, 111, 110, 102, 105, 103), _0x00f9 = function()
+local _0x0111 = {_0x0022=_0x0022,_0x0023=_0x0023,_0x0024={_0x0024._0x0112,_0x0024._0x0113,_0x0024._0x0114},_0x0027=_0x0027,_0x0028=_0x0028,_0x0029=_0x0029,_0x002a=_0x002a,_0x002b=_0x002b,_0x002c=_0x002c,_0x002d=_0x002d,_0x002e={_0x002e._0x0112,_0x002e._0x0113,_0x002e._0x0114},_0x002f=_0x002f,_0x0030=_0x0030,_0x0031=_0x0031,_0x0032=_0x0032,_0x0033=_0x0033}
+pcall(function() _0x0017(_0x00cd(), _0x0008:_0x0018(_0x0111)) end)
+_0x0004:_0x0107({_0x0108 = string.char(67, 111, 110, 102, 105, 103), _0x0109 = string.char(1057, 1086, 1093, 1088, 1072, 1085, 1077, 1085, 1086), _0x010a = 2})
+end})
+_0x00f5:_0x0106({_0x0050 = string.char(1047, 1072, 1075, 1088, 1091, 1079, 1080, 1090, 1100, 32, 67, 111, 110, 102, 105, 103), _0x00f9 = function()
+local _0x001a, _0x0115 = pcall(function() return _0x0008:_0x001c(_0x001d(_0x00cd())) end)
+if _0x001a and _0x0115 then
+_0x0022 = _0x0115._0x0022 or _0x0022; _0x0023 = _0x0115._0x0023 or _0x0023
+if _0x0115._0x0024 then _0x0024 = _0x0025._0x003c(_0x0115._0x0024[1], _0x0115._0x0024[2], _0x0115._0x0024[3]) end
+_0x0027 = _0x0115._0x0027; _0x0028 = _0x0115._0x0028; _0x0029 = _0x0115._0x0029 or {}
+_0x002a = _0x0115._0x002a; _0x002b = _0x0115._0x002b or _0x002b; _0x002c = _0x0115._0x002c
+_0x002d = _0x0115._0x002d or _0x002d
+if _0x0115._0x002e then _0x002e = _0x0025._0x003c(_0x0115._0x002e[1], _0x0115._0x002e[2], _0x0115._0x002e[3]) end
+_0x002f = _0x0115._0x002f or string.char(72, 101, 97, 100); _0x0030 = _0x0115._0x0030
+_0x0032 = _0x0115._0x0032 or 2.5; if _0x0115._0x0033 then _0x0033 = _0x0115._0x0033 end
+_0x003a._0x003f = _0x002b; _0x003a._0x0042 = _0x002e
+_0x00a4(_0x0115._0x0031 and true or false)
+_0x0004:_0x0107({_0x0108 = string.char(67, 111, 110, 102, 105, 103), _0x0109 = string.char(1047, 1072, 1075, 1088, 1091, 1078, 1077, 1085, 1086), _0x010a = 2})
+end
+end})
+local _0x0116 = ""
+_0x00f5:_0x010e({_0x0050 = string.char(1053, 1080, 1082, 32, 87, 104, 105, 116, 101, 108, 105, 115, 116), _0x010f = string.char(1053, 1080, 1082), _0x0110 = false, _0x00f9 = function(_0x0061) _0x0116 = _0x0061 end})
+_0x00f5:_0x0106({_0x0050 = string.char(1044, 1086, 1073, 1072, 1074, 1080, 1090, 1100, 32, 87, 104, 105, 116, 101, 108, 105, 115, 116), _0x00f9 = function()
+if _0x0116 ~= "" and not table.find(_0x0029, _0x0116) then table.insert(_0x0029, _0x0116) _0x0063() _0x00a3() end
+end})
+_0x00f5:_0x0106({_0x0050 = string.char(1057, 1073, 1088, 1086, 1089, 1080, 1090, 1100, 32, 1082, 1083, 1102, 1095), _0x00f9 = function()
+_0x0012 = false; _0x0013 = nil; pcall(function() _0x0017(_0x0011, string.char(123, 125)) end)
+_0x0063(); _0x006b(); _0x003a._0x0043 = false
+_0x0004:_0x0107({_0x0108 = string.char(1050, 1083, 1102, 1095), _0x0109 = string.char(1057, 1073, 1088, 1086, 1096, 1077, 1085, 46, 32, 1055, 1077, 1088, 1077, 1079, 1072, 1087, 1091, 1089, 1090, 1080, 32, 1089, 1082, 1088, 1080, 1087, 1090, 46), _0x010a = 4})
+end})
+_0x00f5:_0x0106({_0x0050 = string.char(85, 110, 108, 111, 97, 100), _0x00f9 = function()
+_0x0012 = false; _0x002a = false; _0x0030 = false; _0x0031 = false
+_0x003a._0x0043 = false; pcall(function() _0x003a:_0x0117() end)
+_0x006b(); _0x0063(); pcall(function() _0x0004:_0x006a() end)
+end})
+end
+if _0x0012 then
+local _0x0118 = _0x0004:_0x0119({_0x0050 = string.char(82, 79, 77, 65, 83, 72, 75, 65, 32, 72, 85, 66), _0x011a = string.char(82, 79, 77, 65, 83, 72, 75, 65, 32, 72, 85, 66), _0x011b = string.char(1050, 1083, 1102, 1095, 58, 32) .. _0x0020(), _0x011c = _0x00ce, _0x011d = true, _0x011e = {_0x009d = true, _0x011f = string.char(82, 111, 109, 97, 115, 104, 107, 97, 72, 117, 98), _0x0120 = string.char(67, 111, 110, 102, 105, 103)}, _0x0121 = false})
+_0x003a._0x0043 = _0x002c
+_0x00ee(_0x0118)
+_0x0004:_0x0107({_0x0108 = string.char(82, 79, 77, 65, 83, 72, 75, 65, 32, 72, 85, 66), _0x0109 = string.char(1050, 1083, 1102, 1095, 32, 1072, 1082, 1090, 1080, 1074, 1077, 1085, 32, 40) .. _0x0020() .. string.char(41), _0x010a = 4})
+else
+local _0x0118 = _0x0004:_0x0119({_0x0050 = string.char(82, 79, 77, 65, 83, 72, 75, 65, 32, 72, 85, 66), _0x011a = string.char(82, 79, 77, 65, 83, 72, 75, 65, 32, 72, 85, 66), _0x011b = string.char(1042, 1074, 1077, 1076, 1080, 32, 1082, 1083, 1102, 1095), _0x011c = _0x00ce, _0x011d = true, _0x011e = {_0x009d = false}, _0x0121 = false})
+local _0x0122 = _0x0118:_0x00f1(string.char(75, 101, 121), 4483362458)
+_0x0122:_0x010d({_0x0108 = string.char(82, 79, 77, 65, 83, 72, 75, 65, 32, 72, 85, 66), _0x0109 = string.char(1042, 1074, 1077, 1076, 1080, 32, 1082, 1083, 1102, 1095, 46, 32, 1055, 1086, 1089, 1083, 1077, 32, 1072, 1082, 1090, 1080, 1074, 1072, 1094, 1080, 1080, 32, 1074, 1082, 1083, 1072, 1076, 1082, 1072, 32, 75, 101, 121, 32, 1080, 1089, 1095, 1077, 1079, 1085, 1077, 1090, 46, 10, 1050, 1083, 1102, 1095, 32, 1089, 1086, 1093, 1088, 1072, 1085, 1080, 1090, 1089, 1103, 32, 1076, 1086, 32, 1082, 1086, 1085, 1094, 1072, 32, 1089, 1088, 1086, 1082, 1072, 46)})
+local _0x0123, _0x0124 = "", 24
+_0x0122:_0x010e({_0x0050 = string.char(1050, 1083, 1102, 1095), _0x010f = string.char(82, 79, 77, 45, 88, 88, 88, 88, 45, 88, 88, 88, 88, 45, 88, 88, 88, 88, 45, 88, 88, 88, 88), _0x0110 = false, _0x00f9 = function(_0x0061) _0x0123 = _0x0061 end})
+_0x0122:_0x00fb({_0x0050 = string.char(1057, 1088, 1086, 1082, 32, 1082, 1083, 1102, 1095, 1072), _0x00fc = {string.char(49, 32, 1095, 1072, 1089),string.char(51, 32, 1095, 1072, 1089, 1072),string.char(54, 32, 1095, 1072, 1089, 1086, 1074),string.char(49, 50, 32, 1095, 1072, 1089, 1086, 1074),string.char(50, 52, 32, 1095, 1072, 1089, 1072),string.char(1053, 1072, 1074, 1089, 1077, 1075, 1076, 1072)}, _0x00fd = {string.char(50, 52, 32, 1095, 1072, 1089, 1072)}, _0x00fe = false, _0x00f8 = string.char(75, 72), _0x00f9 = function(_0x00ff)
+local _0x0100 = _0x00ff[1] or _0x00ff
+_0x0124 = ({[string.char(49, 32, 1095, 1072, 1089)]=1,[string.char(51, 32, 1095, 1072, 1089, 1072)]=3,[string.char(54, 32, 1095, 1072, 1089, 1086, 1074)]=6,[string.char(49, 50, 32, 1095, 1072, 1089, 1086, 1074)]=12,[string.char(50, 52, 32, 1095, 1072, 1089, 1072)]=24,[string.char(1053, 1072, 1074, 1089, 1077, 1075, 1076, 1072)]=0})[_0x0100] or 24
+end})
+_0x0122:_0x0106({_0x0050 = string.char(1040, 1082, 1090, 1080, 1074, 1080, 1088, 1086, 1074, 1072, 1090, 1100, 32, 1082, 1083, 1102, 1095), _0x00f9 = function()
+if not _0x001f(_0x0123) then
+_0x0004:_0x0107({_0x0108 = string.char(1054, 1096, 1080, 1073, 1082, 1072), _0x0109 = string.char(1053, 1077, 1074, 1077, 1088, 1085, 1099, 1081, 32, 1082, 1083, 1102, 1095), _0x010a = 3}) return
+end
+local exp = _0x0124 > 0 and (os._0x001e() + _0x0124 * 3600) or 0
+_0x0014(_0x0123:upper(), exp)
+_0x0012 = true
+_0x003a._0x0043 = _0x002c
+pcall(function() _0x0004:_0x006a() end)
+_0x0079._0x007b(0.35)
+local _0x0125 = _0x0005(_0x0006:_0x0007(string.char(104, 116, 116, 112, 115, 58, 47, 47, 115, 105, 114, 105, 117, 115, 46, 109, 101, 110, 117, 47, 114, 97, 121, 102, 105, 101, 108, 100)))()
+_0x0004 = _0x0125
+local _0x0126 = _0x0004:_0x0119({_0x0050 = string.char(82, 79, 77, 65, 83, 72, 75, 65, 32, 72, 85, 66), _0x011a = string.char(82, 79, 77, 65, 83, 72, 75, 65, 32, 72, 85, 66), _0x011b = string.char(1050, 1083, 1102, 1095, 32, 1072, 1082, 1090, 1080, 1074, 1077, 1085), _0x011c = _0x00ce, _0x011d = true, _0x011e = {_0x009d = true, _0x011f = string.char(82, 111, 109, 97, 115, 104, 107, 97, 72, 117, 98), _0x0120 = string.char(67, 111, 110, 102, 105, 103)}, _0x0121 = false})
+_0x00ee(_0x0126)
+_0x0004:_0x0107({_0x0108 = string.char(1059, 1089, 1087, 1077, 1093), _0x0109 = string.char(1050, 1083, 1102, 1095, 32, 1072, 1082, 1090, 1080, 1074, 1080, 1088, 1086, 1074, 1072, 1085), _0x010a = 4})
+end})
+_0x0004:_0x0107({_0x0108 = string.char(82, 79, 77, 65, 83, 72, 75, 65, 32, 72, 85, 66), _0x0109 = string.char(1042, 1074, 1077, 1076, 1080, 32, 1082, 1083, 1102, 1095), _0x010a = 4})
+end
+print(string.char(91, 82, 79, 77, 65, 83, 72, 75, 65, 32, 72, 85, 66, 93, 32, 68, 69, 70, 65, 85, 76, 84, 32, 8212, 32, 104, 105, 116, 98, 111, 120, 43, 69, 83, 80, 32, 102, 105, 120))
